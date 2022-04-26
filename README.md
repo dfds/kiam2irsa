@@ -19,13 +19,8 @@ metadata:
         eks.amazonaws.com/sts-regional-endpoints: "true"
 ```
 
-## Requirements
-
-A kubeconfig file that exists in `~/.kube` directory. By default it will attempt to read the `~/.kube/config` file.
-If you want it to read a different kubeconfig file, specify the filename with full path as shown below.
-
 ## Usage
 
 ```bash
-go run main.go ~/.kube/my-cluster.config
+./kiam2irsa sa --kubeconfig ~/.kube/my-cluster.config
 ```
