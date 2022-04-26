@@ -13,9 +13,9 @@ import (
 )
 
 const (
-	FAVORABLE_ANNOTATION_NAME    string = "eks.amazonaws.com/role-arn"
-	UNDESIRABLE_ANNOTATION_NAME  string = "eks.amazonaws.com/sts-regional-endpoints"
-	UNDESIRABLE_ANNOTATION_VALUE string = "true"
+	ROLE_ARN_ANNOTATION_NAME      string = "eks.amazonaws.com/role-arn"
+	REGIONAL_STS_ANNOTATION_NAME  string = "eks.amazonaws.com/sts-regional-endpoints"
+	REGIONAL_STS_ANNOTATION_VALUE string = "true"
 )
 
 func main() {
@@ -58,10 +58,10 @@ func main() {
 		hasFavorable := false
 		hasUndesirable := false
 		for annoKey, annoValue := range annotations {
-			if annoKey == FAVORABLE_ANNOTATION_NAME {
+			if annoKey == ROLE_ARN_ANNOTATION_NAME {
 				hasFavorable = true
 			}
-			if annoKey == UNDESIRABLE_ANNOTATION_NAME && annoValue == UNDESIRABLE_ANNOTATION_VALUE {
+			if annoKey == REGIONAL_STS_ANNOTATION_NAME && annoValue == REGIONAL_STS_ANNOTATION_VALUE {
 				hasUndesirable = true
 			}
 		}
