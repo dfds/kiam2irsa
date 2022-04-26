@@ -66,7 +66,7 @@ func main() {
 			}
 		}
 		if hasFavorable && !hasUndesirable {
-			sugar.Infof("Service account %s in namespace %s has annotations", name, ns)
+			sugar.Infof("Service account %s in namespace %s is not yet migrated to IRSA", name, ns)
 		}
 	}
 }
