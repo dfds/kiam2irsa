@@ -3,6 +3,7 @@ package sa
 import (
 	"context"
 
+	"github.com/spf13/cobra"
 	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -15,7 +16,7 @@ const (
 	REGIONAL_STS_ANNOTATION_VALUE string = "true"
 )
 
-func GetSA(kubeconfig string) {
+func GetSA(cmd *cobra.Command, args []string) {
 	logger, _ := zap.NewDevelopment()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()
@@ -23,6 +24,12 @@ func GetSA(kubeconfig string) {
 		}
 	}(logger)
 	sugar := logger.Sugar()
+
+	kubeconfig, err := cmd.Flags().GetString("kubeconfig")
+	if err != nil {
+		sugar.Error(err.Error())
+		return
+	}
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
 	if err != nil {
