@@ -11,9 +11,9 @@ import (
 )
 
 const (
-	ROLE_ARN_ANNOTATION_NAME      string = "eks.amazonaws.com/role-arn"
-	REGIONAL_STS_ANNOTATION_NAME  string = "eks.amazonaws.com/sts-regional-endpoints"
-	REGIONAL_STS_ANNOTATION_VALUE string = "true"
+	RoleArnAnnotationName      string = "eks.amazonaws.com/role-arn"
+	RegionalStsAnnotationName  string = "eks.amazonaws.com/sts-regional-endpoints"
+	RegionalStsAnnotationValue string = "true"
 )
 
 func GetSA(cmd *cobra.Command, args []string) {
@@ -53,10 +53,10 @@ func GetSA(cmd *cobra.Command, args []string) {
 		hasFavorable := false
 		hasUndesirable := false
 		for annoKey, annoValue := range annotations {
-			if annoKey == ROLE_ARN_ANNOTATION_NAME {
+			if annoKey == RoleArnAnnotationName {
 				hasFavorable = true
 			}
-			if annoKey == REGIONAL_STS_ANNOTATION_NAME && annoValue == REGIONAL_STS_ANNOTATION_VALUE {
+			if annoKey == RegionalStsAnnotationName && annoValue == RegionalStsAnnotationValue {
 				hasUndesirable = true
 			}
 		}
