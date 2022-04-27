@@ -21,6 +21,21 @@ metadata:
 
 ## Usage
 
+### With default kubeconfig ~/.kube/config
+
+```bash
+./kiam2irsa sa
+```
+
+### With custom kubeconfig through environment variable
+
+```bash
+KUBECONFIG=~/.kube/my-cluster.config
+./kiam2irsa sa
+```
+
+### With kubeconfig through argument passing
+
 ```bash
 ./kiam2irsa sa --kubeconfig ~/.kube/my-cluster.config
 ```

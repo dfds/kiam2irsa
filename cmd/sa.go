@@ -26,13 +26,16 @@ func saInit() {
 	}(logger)
 	sugar := logger.Sugar()
 
+	// Setting a default value for kubeconfig
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		sugar.Error(err.Error())
 		return
 	}
-
-	kubeconfig := fmt.Sprintf("%s/.kube/config", homeDir) // Default value
+	kubeconfig, exist := os.LookupEnv("KUBECONFIG")
+	if !exist {
+		kubeconfig = fmt.Sprintf("%s/.kube/config", homeDir)
+	}
 
 	saCmd.PersistentFlags().StringP("kubeconfig", "f", kubeconfig, "Full path to the kubeconfig file")
 }
