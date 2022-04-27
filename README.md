@@ -21,6 +21,14 @@ metadata:
 
 ## Usage
 
+### Getting CLI help
+
+```bash
+./kiam2irsa --help
+
+./kiam2irsa sa --help
+```
+
 ### With default kubeconfig ~/.kube/config
 
 ```bash
@@ -38,4 +46,10 @@ KUBECONFIG=~/.kube/my-cluster.config
 
 ```bash
 ./kiam2irsa sa --kubeconfig ~/.kube/my-cluster.config
+```
+
+## Build instructions
+
+```bash
+go build .
 ```
