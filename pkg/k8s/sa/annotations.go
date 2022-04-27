@@ -16,7 +16,7 @@ const (
 	RegionalStsAnnotationValue string = "true"
 )
 
-func GetSA(cmd *cobra.Command, args []string) {
+func GetSA(cmd *cobra.Command) {
 	logger, _ := zap.NewDevelopment()
 	defer func(logger *zap.Logger) {
 		err := logger.Sync()

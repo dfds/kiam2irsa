@@ -13,7 +13,7 @@ var saCmd = &cobra.Command{
 	Use:   "sa",
 	Short: "Find Kubernetes ServiceAccounts with certain annotations",
 	Run: func(cmd *cobra.Command, args []string) {
-		sa.GetSA(cmd, args)
+		sa.GetSA(cmd)
 	},
 }
 
