@@ -11,7 +11,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-func GetServiceAccounts(cmd *cobra.Command) {
+func CheckAllServiceAccounts(cmd *cobra.Command) {
 	sugar := logging.SugarLogger()
 
 	kubeconfig, err := cmd.Flags().GetString("kubeconfig")
