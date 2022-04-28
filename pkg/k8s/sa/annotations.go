@@ -2,9 +2,9 @@ package sa
 
 import (
 	"context"
+	"github.com/dfds/kiam2irsa/pkg/logging"
 
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -17,13 +17,7 @@ const (
 )
 
 func GetSA(cmd *cobra.Command) {
-	logger, _ := zap.NewDevelopment()
-	defer func(logger *zap.Logger) {
-		err := logger.Sync()
-		if err != nil {
-		}
-	}(logger)
-	sugar := logger.Sugar()
+	sugar := logging.SugarLogger()
 
 	kubeconfig, err := cmd.Flags().GetString("kubeconfig")
 	if err != nil {

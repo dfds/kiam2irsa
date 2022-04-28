@@ -24,4 +24,6 @@ func Execute() {
 func init() {
 	saInit()
 	rootCmd.AddCommand(saCmd)
+	podInit()
+	rootCmd.AddCommand(podCmd)
 }

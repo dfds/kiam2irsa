@@ -2,11 +2,11 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/dfds/kiam2irsa/pkg/logging"
 	"os"
 
 	"github.com/dfds/kiam2irsa/pkg/k8s/sa"
 	"github.com/spf13/cobra"
-	"go.uber.org/zap"
 )
 
 var saCmd = &cobra.Command{
@@ -18,13 +18,7 @@ var saCmd = &cobra.Command{
 }
 
 func saInit() {
-	logger, _ := zap.NewDevelopment()
-	defer func(logger *zap.Logger) {
-		err := logger.Sync()
-		if err != nil {
-		}
-	}(logger)
-	sugar := logger.Sugar()
+	sugar := logging.SugarLogger()
 
 	// Setting a default value for kubeconfig
 	homeDir, err := os.UserHomeDir()
