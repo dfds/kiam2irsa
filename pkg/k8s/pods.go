@@ -8,12 +8,6 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-const (
-	RoleArnAnnotationName      string = "eks.amazonaws.com/role-arn"
-	RegionalStsAnnotationName  string = "eks.amazonaws.com/sts-regional-endpoints"
-	RegionalStsAnnotationValue string = "true"
-)
-
 func GetPods(cmd *cobra.Command) {
 	sugar := logging.SugarLogger()
 

@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/dfds/kiam2irsa/pkg/k8s"
 	"github.com/dfds/kiam2irsa/pkg/logging"
 	"os"
 
-	"github.com/dfds/kiam2irsa/pkg/k8s/sa"
 	"github.com/spf13/cobra"
 )
 
@@ -13,7 +13,7 @@ var saCmd = &cobra.Command{
 	Use:   "sa",
 	Short: "Find Kubernetes ServiceAccounts with certain annotations",
 	Run: func(cmd *cobra.Command, args []string) {
-		sa.GetSA(cmd)
+		k8s.GetSA(cmd)
 	},
 }
 
