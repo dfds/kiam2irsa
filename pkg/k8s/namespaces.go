@@ -32,8 +32,8 @@ func GetNamespacesWithPermittedAnnotation(clientset *kubernetes.Clientset) ([]st
 	for _, ns := range namespaces.Items {
 		name := ns.Name
 		annotations := ns.Annotations
-		for annoKey, annoVal := range annotations {
-			matchVal, _ := regexp.Match("arn:aws:iam::\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d:role/.*", []byte(annoVal))
+		for annoKey, annoValue := range annotations {
+			matchVal, _ := regexp.Match("arn:aws:iam::\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d:role/.*", []byte(annoValue))
 			if annoKey == "iam.amazonaws.com/permitted" && matchVal {
 				retNamespaces = append(retNamespaces, name)
 			}

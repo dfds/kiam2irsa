@@ -13,7 +13,7 @@ var podCmd = &cobra.Command{
 	Use:   "pods",
 	Short: "Find Kubernetes Pods that is still not migrated away from KIAM",
 	Run: func(cmd *cobra.Command, args []string) {
-		k8s.GetPods(cmd)
+		k8s.CheckPodsMigrationStatus(cmd)
 	},
 }
 
