@@ -27,9 +27,18 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 		parallelism = false
 	}
 
-	namespaces, err := GetNamespacesWithPermittedAnnotation(clientset)
-	if err != nil {
-		sugar.Panic(err.Error())
+	var namespaces []string
+
+	if status == "KIAM" || status == "BOTH" {
+		namespaces, err = GetNamespacesWithPermittedAnnotation(clientset)
+		if err != nil {
+			sugar.Panic(err.Error())
+		}
+	} else { // status == "IRSA"
+		namespaces, err = GetAllNamespaces(clientset)
+		if err != nil {
+			sugar.Panic(err.Error())
+		}
 	}
 
 	for _, ns := range namespaces {

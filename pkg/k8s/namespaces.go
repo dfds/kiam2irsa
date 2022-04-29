@@ -8,6 +8,21 @@ import (
 	"regexp"
 )
 
+func GetAllNamespaces(clientset *kubernetes.Clientset) ([]string, error) {
+	sugar := logging.SugarLogger()
+	namespaces, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		sugar.Error(err.Error())
+		return nil, err
+	}
+
+	retNamespaces := make([]string, 0)
+	for _, ns := range namespaces.Items {
+		retNamespaces = append(retNamespaces, ns.Name)
+	}
+	return retNamespaces, nil
+}
+
 func GetNamespacesWithPermittedAnnotation(clientset *kubernetes.Clientset) ([]string, error) {
 	sugar := logging.SugarLogger()
 	namespaces, err := clientset.CoreV1().Namespaces().List(context.TODO(), metav1.ListOptions{})
