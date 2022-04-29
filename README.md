@@ -27,25 +27,41 @@ metadata:
 ./kiam2irsa --help
 
 ./kiam2irsa sa --help
+./kiam2irsa pods --help
 ```
 
-### With default kubeconfig ~/.kube/config
+### Find ServiceAccount status using default kubeconfig ~/.kube/config
 
 ```bash
 ./kiam2irsa sa
 ```
 
-### With custom kubeconfig through environment variable
+### Find ServiceAccount status using custom kubeconfig through environment variable
 
 ```bash
 KUBECONFIG=~/.kube/my-cluster.config
 ./kiam2irsa sa
 ```
 
-### With kubeconfig through argument passing
+### Find ServiceAccount status using kubeconfig through argument passing
 
 ```bash
 ./kiam2irsa sa --kubeconfig ~/.kube/my-cluster.config
+```
+
+### Find pods only using KIAM
+```bash
+./kiam2irsa pods --status KIAM
+```
+
+### Find pods only migrated to IRSA, but that still supports KIAM
+```bash
+./kiam2irsa pods --status BOTH
+```
+
+### Find pods fully migrated to IRSA
+```bash
+./kiam2irsa pods --status IRSA
 ```
 
 ## Build instructions
