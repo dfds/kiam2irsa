@@ -32,4 +32,6 @@ func podInit() {
 	}
 
 	podCmd.PersistentFlags().StringP("kubeconfig", "f", kubeconfig, "Full path to the kubeconfig file")
+	podCmd.PersistentFlags().StringP("status", "s", "KIAM", "Migration status supports: KIAM, IRSA, BOTH")
+	podCmd.PersistentFlags().BoolP("parallelism", "p", false, "Use goroutines to make requests in parallel?")
 }

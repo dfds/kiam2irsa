@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"strings"
 	"sync"
 )
 
@@ -13,11 +14,30 @@ const (
 	RoleArnAnnotationName      string = "eks.amazonaws.com/role-arn"
 	RegionalStsAnnotationName  string = "eks.amazonaws.com/sts-regional-endpoints"
 	RegionalStsAnnotationValue string = "true"
-	Parallelism                bool   = false
 )
 
 var nsWaitGroup sync.WaitGroup
 var podWaitGroup sync.WaitGroup
+
+func getStatusFlag(cmd *cobra.Command) (string, error) {
+	sugar := logging.SugarLogger()
+	status, err := cmd.Flags().GetString("status")
+	if err != nil {
+		sugar.Error(err.Error())
+		return "", err
+	}
+	return strings.ToUpper(status), nil
+}
+
+func getParallelismFlag(cmd *cobra.Command) (bool, error) {
+	sugar := logging.SugarLogger()
+	parallelism, err := cmd.Flags().GetBool("parallelism")
+	if err != nil {
+		sugar.Error(err.Error())
+		return false, err
+	}
+	return parallelism, nil
+}
 
 func k8sClientSet(cmd *cobra.Command) (*kubernetes.Clientset, error) {
 	sugar := logging.SugarLogger()

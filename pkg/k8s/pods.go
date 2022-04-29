@@ -16,6 +16,16 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 	if err != nil {
 		sugar.Panic(err.Error())
 	}
+	status, err := getStatusFlag(cmd)
+	if err != nil {
+		sugar.Error("Unable to get status flag. Setting to default value: KIAM")
+		status = "KIAM"
+	}
+	parallelism, err := getParallelismFlag(cmd)
+	if err != nil {
+		sugar.Error("Unable to determine parallelism. Setting to default value: false")
+		parallelism = false
+	}
 
 	namespaces, err := GetNamespacesWithPermittedAnnotation(clientset)
 	if err != nil {
@@ -23,21 +33,21 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 	}
 
 	for _, ns := range namespaces {
-		if Parallelism {
+		if parallelism {
 			nsWaitGroup.Add(1)
-			go checkAllPodsInNamespace(clientset, ns)
+			go checkAllPodsInNamespace(clientset, ns, status, parallelism)
 		} else {
-			checkAllPodsInNamespace(clientset, ns)
+			checkAllPodsInNamespace(clientset, ns, status, parallelism)
 		}
 
 	}
-	if Parallelism {
+	if parallelism {
 		nsWaitGroup.Wait()
 	}
 }
 
-func checkAllPodsInNamespace(clientset *kubernetes.Clientset, namespace string) {
-	if Parallelism {
+func checkAllPodsInNamespace(clientset *kubernetes.Clientset, namespace string, status string, parallelism bool) {
+	if parallelism {
 		defer nsWaitGroup.Done()
 	}
 	sugar := logging.SugarLogger()
@@ -46,20 +56,20 @@ func checkAllPodsInNamespace(clientset *kubernetes.Clientset, namespace string) 
 		sugar.Panic(err.Error())
 	}
 	for _, pod := range pods.Items {
-		if Parallelism {
+		if parallelism {
 			podWaitGroup.Add(1)
-			go checkPod(clientset, pod, "TODO")
+			go checkPod(clientset, pod, status, parallelism)
 		} else {
-			checkPod(clientset, pod, "TODO")
+			checkPod(clientset, pod, status, parallelism)
 		}
 	}
-	if Parallelism {
+	if parallelism {
 		podWaitGroup.Wait()
 	}
 }
 
-func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, migrationStatus string) {
-	if Parallelism {
+func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string, parallelism bool) {
+	if parallelism {
 		defer podWaitGroup.Done()
 	}
 	sugar := logging.SugarLogger()
@@ -72,16 +82,25 @@ func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, migrationStatus strin
 		hasIrsaAnnotation, _ = ServiceAccountHasAnnotationForIRSA(clientset, serviceAccountName, ns)
 	}
 
-	if isPodUsingKiam(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
-		sugar.Infof("Pod %s in namespace %s is not yet migrated to IRSA", podName, ns)
+	if status == "KIAM" {
+		if isPodUsingKiam(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
+			sugar.Infof("Pod %s in namespace %s is using only KIAM", podName, ns)
+		}
+		return
 	}
 
-	if isPodUsingBoth(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
-		sugar.Infof("Pod %s in namespace %s is migrated to IRSA, but still supports KIAM", podName, ns)
+	if status == "BOTH" {
+		if isPodUsingBoth(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
+			sugar.Infof("Pod %s in namespace %s is migrated to IRSA, but still supports KIAM", podName, ns)
+		}
+		return
 	}
 
-	if isPodUsingIrsa(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
-		sugar.Infof("Pod %s in namespace %s is fully migrated to IRSA", podName, ns)
+	if status == "IRSA" {
+		if isPodUsingIrsa(hasKiamAnnotation, hasIrsaAnnotation, hasServiceAccountName) {
+			sugar.Infof("Pod %s in namespace %s is fully migrated to IRSA", podName, ns)
+		}
+		return
 	}
 }
 
