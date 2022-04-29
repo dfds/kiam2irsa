@@ -13,6 +13,7 @@ const (
 	RoleArnAnnotationName      string = "eks.amazonaws.com/role-arn"
 	RegionalStsAnnotationName  string = "eks.amazonaws.com/sts-regional-endpoints"
 	RegionalStsAnnotationValue string = "true"
+	Parallelism                bool   = false
 )
 
 var nsWaitGroup sync.WaitGroup
