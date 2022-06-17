@@ -43,9 +43,10 @@ func checkAllPods(clientset *kubernetes.Clientset, status string) {
 
 	for _, pod := range pods.Items {
 		wg.Add(1)
+		pod := pod
 		go func() {
 			defer wg.Done()
-			checkPod(clientset, pod, status, serviceAccounts)
+			checkPod(pod, status, serviceAccounts)
 		}()
 	}
 
@@ -53,7 +54,7 @@ func checkAllPods(clientset *kubernetes.Clientset, status string) {
 
 }
 
-func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string, saList *v1.ServiceAccountList) {
+func checkPod(pod v1.Pod, status string, saList *v1.ServiceAccountList) {
 	sugar := logging.SugarLogger()
 	podName := pod.Name
 	ns := pod.Namespace
