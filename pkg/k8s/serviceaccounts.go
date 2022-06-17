@@ -2,10 +2,12 @@ package k8s
 
 import (
 	"context"
-	"github.com/dfds/kiam2irsa/pkg/logging"
 	"regexp"
 
+	"github.com/dfds/kiam2irsa/pkg/logging"
+
 	"github.com/spf13/cobra"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -55,24 +57,21 @@ func CheckAllServiceAccounts(cmd *cobra.Command) {
 	}
 }
 
-func ServiceAccountHasAnnotationForIRSA(clientset *kubernetes.Clientset, name string, namespace string) (bool, error) {
-	sugar := logging.SugarLogger()
-	serviceAccount, err := clientset.CoreV1().ServiceAccounts(namespace).Get(context.TODO(), name, metav1.GetOptions{})
-	if err != nil {
-		sugar.Error(err.Error())
-		return false, err
-	}
-
+func HasServiceAccountAnnotationForIRSA(name string, namespace string, saList *v1.ServiceAccountList) (bool, error) {
 	hasRoleArn := false
 	hasRegionalSts := false
 
-	for key, val := range serviceAccount.Annotations {
-		matchVal, _ := regexp.Match("arn:aws:iam::\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d:role/", []byte(val))
-		if key == RoleArnAnnotationName && matchVal {
-			hasRoleArn = true
-		}
-		if key == RegionalStsAnnotationName && val == RegionalStsAnnotationValue {
-			hasRegionalSts = true
+	for _, sa := range saList.Items {
+		if name == sa.Name && namespace == sa.Namespace {
+			for key, val := range sa.Annotations {
+				matchVal, _ := regexp.Match("arn:aws:iam::\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d\\d:role/", []byte(val))
+				if key == RoleArnAnnotationName && matchVal {
+					hasRoleArn = true
+				}
+				if key == RegionalStsAnnotationName && val == RegionalStsAnnotationValue {
+					hasRegionalSts = true
+				}
+			}
 		}
 	}
 
@@ -80,4 +79,14 @@ func ServiceAccountHasAnnotationForIRSA(clientset *kubernetes.Clientset, name st
 		return true, nil
 	}
 	return false, nil
+}
+
+func GetAllServiceAccounts(clientset *kubernetes.Clientset) (*v1.ServiceAccountList, error) {
+	sugar := logging.SugarLogger()
+	serviceAccounts, err := clientset.CoreV1().ServiceAccounts("").List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		sugar.Panic(err.Error())
+	}
+
+	return serviceAccounts, err
 }

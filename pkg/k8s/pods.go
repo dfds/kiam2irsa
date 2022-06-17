@@ -35,21 +35,26 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bool) {
 	sugar := logging.SugarLogger()
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
-	var wg sync.WaitGroup
-
 	if err != nil {
 		sugar.Panic(err.Error())
 	}
+
+	serviceAccounts, err := GetAllServiceAccounts(clientset)
+	if err != nil {
+		sugar.Panic(err.Error())
+	}
+
+	var wg sync.WaitGroup
 
 	for _, pod := range pods.Items {
 		if parallelism {
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
-				checkPod(clientset, pod, status)
+				checkPod(clientset, pod, status, serviceAccounts)
 			}()
 		} else {
-			checkPod(clientset, pod, status)
+			checkPod(clientset, pod, status, serviceAccounts)
 		}
 	}
 	if parallelism {
@@ -57,7 +62,7 @@ func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bo
 	}
 }
 
-func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string) {
+func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string, saList *v1.ServiceAccountList) {
 	sugar := logging.SugarLogger()
 	podName := pod.Name
 	ns := pod.Namespace
@@ -67,7 +72,7 @@ func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string) {
 
 	// This could be optimized to query all SAs in one go
 	if hasServiceAccountName {
-		hasIrsaAnnotation, _ = ServiceAccountHasAnnotationForIRSA(clientset, serviceAccountName, ns)
+		hasIrsaAnnotation, _ = HasServiceAccountAnnotationForIRSA(serviceAccountName, ns, saList)
 	}
 
 	if status == "KIAM" {
