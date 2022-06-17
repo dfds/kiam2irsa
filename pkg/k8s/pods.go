@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"regexp"
+	"sync"
 
 	"github.com/dfds/kiam2irsa/pkg/logging"
 	"github.com/spf13/cobra"
@@ -28,23 +29,13 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 		parallelism = false
 	}
 
-	if parallelism {
-		nsWaitGroup.Add(1)
-		go checkAllPods(clientset, status, parallelism)
-	} else {
-		checkAllPods(clientset, status, parallelism)
-	}
-	if parallelism {
-		nsWaitGroup.Wait()
-	}
+	checkAllPods(clientset, status, parallelism)
 }
 
 func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bool) {
-	if parallelism {
-		defer nsWaitGroup.Done()
-	}
 	sugar := logging.SugarLogger()
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+	var wg sync.WaitGroup
 
 	if err != nil {
 		sugar.Panic(err.Error())
@@ -52,27 +43,29 @@ func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bo
 
 	for _, pod := range pods.Items {
 		if parallelism {
-			podWaitGroup.Add(1)
-			go checkPod(clientset, pod, status, parallelism)
+			wg.Add(1)
+			go func() {
+				defer wg.Done()
+				checkPod(clientset, pod, status)
+			}()
 		} else {
-			checkPod(clientset, pod, status, parallelism)
+			checkPod(clientset, pod, status)
 		}
 	}
 	if parallelism {
-		podWaitGroup.Wait()
+		wg.Wait()
 	}
 }
 
-func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string, parallelism bool) {
-	if parallelism {
-		defer podWaitGroup.Done()
-	}
+func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string) {
 	sugar := logging.SugarLogger()
 	podName := pod.Name
 	ns := pod.Namespace
 	hasKiamAnnotation := hasKiamAnnotation(pod)
 	hasServiceAccountName, serviceAccountName := hasServiceAccountName(pod)
 	hasIrsaAnnotation := false
+
+	// This could be optimized to query all SAs in one go
 	if hasServiceAccountName {
 		hasIrsaAnnotation, _ = ServiceAccountHasAnnotationForIRSA(clientset, serviceAccountName, ns)
 	}

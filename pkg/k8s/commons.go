@@ -1,12 +1,12 @@
 package k8s
 
 import (
+	"strings"
+
 	"github.com/dfds/kiam2irsa/pkg/logging"
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	"strings"
-	"sync"
 )
 
 const (
@@ -15,9 +15,6 @@ const (
 	RegionalStsAnnotationName  string = "eks.amazonaws.com/sts-regional-endpoints"
 	RegionalStsAnnotationValue string = "true"
 )
-
-var nsWaitGroup sync.WaitGroup
-var podWaitGroup sync.WaitGroup
 
 func getStatusFlag(cmd *cobra.Command) (string, error) {
 	sugar := logging.SugarLogger()
