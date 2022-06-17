@@ -2,12 +2,13 @@ package k8s
 
 import (
 	"context"
+	"regexp"
+
 	"github.com/dfds/kiam2irsa/pkg/logging"
 	"github.com/spf13/cobra"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"regexp"
 )
 
 func CheckPodsMigrationStatus(cmd *cobra.Command) {
@@ -27,43 +28,28 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 		parallelism = false
 	}
 
-	var namespaces []string
-
-	if status == "KIAM" || status == "BOTH" {
-		namespaces, err = GetNamespacesWithPermittedAnnotation(clientset)
-		if err != nil {
-			sugar.Panic(err.Error())
-		}
-	} else { // status == "IRSA"
-		namespaces, err = GetAllNamespaces(clientset)
-		if err != nil {
-			sugar.Panic(err.Error())
-		}
-	}
-
-	for _, ns := range namespaces {
-		if parallelism {
-			nsWaitGroup.Add(1)
-			go checkAllPodsInNamespace(clientset, ns, status, parallelism)
-		} else {
-			checkAllPodsInNamespace(clientset, ns, status, parallelism)
-		}
-
+	if parallelism {
+		nsWaitGroup.Add(1)
+		go checkAllPods(clientset, status, parallelism)
+	} else {
+		checkAllPods(clientset, status, parallelism)
 	}
 	if parallelism {
 		nsWaitGroup.Wait()
 	}
 }
 
-func checkAllPodsInNamespace(clientset *kubernetes.Clientset, namespace string, status string, parallelism bool) {
+func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bool) {
 	if parallelism {
 		defer nsWaitGroup.Done()
 	}
 	sugar := logging.SugarLogger()
-	pods, err := clientset.CoreV1().Pods(namespace).List(context.TODO(), metav1.ListOptions{})
+	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
+
 	if err != nil {
 		sugar.Panic(err.Error())
 	}
+
 	for _, pod := range pods.Items {
 		if parallelism {
 			podWaitGroup.Add(1)
