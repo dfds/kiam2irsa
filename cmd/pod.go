@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/dfds/kiam2irsa/pkg/k8s"
 	"github.com/dfds/kiam2irsa/pkg/logging"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -33,5 +34,4 @@ func podInit() {
 
 	podCmd.PersistentFlags().StringP("kubeconfig", "f", kubeconfig, "Full path to the kubeconfig file")
 	podCmd.PersistentFlags().StringP("status", "s", "KIAM", "Migration status supports: KIAM, IRSA, BOTH")
-	podCmd.PersistentFlags().BoolP("parallelism", "p", false, "Use goroutines to make requests in parallel?")
 }

@@ -26,16 +26,6 @@ func getStatusFlag(cmd *cobra.Command) (string, error) {
 	return strings.ToUpper(status), nil
 }
 
-func getParallelismFlag(cmd *cobra.Command) (bool, error) {
-	sugar := logging.SugarLogger()
-	parallelism, err := cmd.Flags().GetBool("parallelism")
-	if err != nil {
-		sugar.Error(err.Error())
-		return false, err
-	}
-	return parallelism, nil
-}
-
 func k8sClientSet(cmd *cobra.Command) (*kubernetes.Clientset, error) {
 	sugar := logging.SugarLogger()
 

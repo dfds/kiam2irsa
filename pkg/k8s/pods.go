@@ -23,16 +23,11 @@ func CheckPodsMigrationStatus(cmd *cobra.Command) {
 		sugar.Error("Unable to get status flag. Setting to default value: KIAM")
 		status = "KIAM"
 	}
-	parallelism, err := getParallelismFlag(cmd)
-	if err != nil {
-		sugar.Error("Unable to determine parallelism. Setting to default value: false")
-		parallelism = false
-	}
 
-	checkAllPods(clientset, status, parallelism)
+	checkAllPods(clientset, status)
 }
 
-func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bool) {
+func checkAllPods(clientset *kubernetes.Clientset, status string) {
 	sugar := logging.SugarLogger()
 	pods, err := clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -47,19 +42,15 @@ func checkAllPods(clientset *kubernetes.Clientset, status string, parallelism bo
 	var wg sync.WaitGroup
 
 	for _, pod := range pods.Items {
-		if parallelism {
-			wg.Add(1)
-			go func() {
-				defer wg.Done()
-				checkPod(clientset, pod, status, serviceAccounts)
-			}()
-		} else {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
 			checkPod(clientset, pod, status, serviceAccounts)
-		}
+		}()
 	}
-	if parallelism {
-		wg.Wait()
-	}
+
+	wg.Wait()
+
 }
 
 func checkPod(clientset *kubernetes.Clientset, pod v1.Pod, status string, saList *v1.ServiceAccountList) {
