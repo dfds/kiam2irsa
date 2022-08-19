@@ -16,9 +16,9 @@ const (
 	RegionalStsAnnotationValue string = "true"
 )
 
-func getStatusFlag(cmd *cobra.Command) (string, error) {
+func getFlag(cmd *cobra.Command, name string) (string, error) {
 	sugar := logging.SugarLogger()
-	status, err := cmd.Flags().GetString("status")
+	status, err := cmd.Flags().GetString(name)
 	if err != nil {
 		sugar.Error(err.Error())
 		return "", err

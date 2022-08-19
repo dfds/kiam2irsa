@@ -34,4 +34,5 @@ func podInit() {
 
 	podCmd.PersistentFlags().StringP("kubeconfig", "f", kubeconfig, "Full path to the kubeconfig file")
 	podCmd.PersistentFlags().StringP("status", "s", "KIAM", "Migration status supports: KIAM, IRSA, BOTH")
+	podCmd.PersistentFlags().StringP("output", "o", "text", "Output format supports: TEXT,CSV")
 }
